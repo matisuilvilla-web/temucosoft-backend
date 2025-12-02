@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Gestión de Personal</h2>
+<div class="row">
+    <div class="col-md-4">
+        <div class="card p-3">
+            <h5>Crear Nuevo Usuario</h5>
+            <form id="userForm" onsubmit="createUser(event)">
+                <div class="mb-2">
+                    <label>Username</label>
+                    <input type="text" id="uName" class="form-control" required>
+                </div>
+                <div class="mb-2">
+                    <label>Email</label>
+                    <input type="email" id="uEmail" class="form-control" required>
+                </div>
+                <div class="mb-2">
+                    <label>RUT</label>
+                    <input type="text" id="uRut" class="form-control" oninput="this.value = this.value.replace(/[^0-9kK-]/g, '')">
+                </div>
+                <div class="mb-2">
+                    <label>Rol</label>
+                    <select id="uRole" class="form-select">
+                        <option value="VENDEDOR">Vendedor</option>
+                        <option value="GERENTE">Gerente</option>
+                        <!-- Admin Cliente solo puede crear vendedores o gerentes, no otros admins usualmente, pero lo dejamos abierto -->
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label>Contraseña</label>
+                    <input type="password" id="uPass" class="form-control" required>
+                </div>
+                <button class="btn btn-dark w-100">Crear Usuario</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card p-3">
+            <h5>Usuarios Existentes</h5>
+            <table class="table" id="usersTable">
+                <thead><tr><th>Usuario</th><th>Email</th><th>Rol</th><th>RUT</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function loadUsers() {
+        const res = await apiFetch('/api/users/');
+        if (res.ok) {
+            const data = await res.json();
+            const tbody = document.querySelector('#usersTable tbody');
+            tbody.innerHTML = '';
+            data.forEach(u => {
+                tbody.innerHTML += `<tr><td>${u.username}</td><td>${u.email}</td><td>${u.role}</td><td>${u.rut || '-'}</td></tr>`;
+            });
+        }
+    }
+
+    async function createUser(e) {
+        e.preventDefault();
+        const payload = {
+            username: document.getElementById('uName').value,
+            email: document.getElementById('uEmail').value,
+            password: document.getElementById('uPass').value,
+            role: document.getElementById('uRole').value,
+            rut: document.getElementById('uRut').value,
+            // company se asigna en backend automaticamente
+        };
+
+        const res = await apiFetch('/api/users/', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+            alert("Usuario creado");
+            document.getElementById('userForm').reset();
+            loadUsers();
+        } else {
+            const err = await res.json();
+            alert("Error: " + JSON.stringify(err));
+        }
+    }
+    loadUsers();
+</script>
+{% endblock %}

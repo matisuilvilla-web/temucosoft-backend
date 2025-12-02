@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Inventario Global</h2>
+    <!-- En una app completa, aquí iría el botón de crear producto -->
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover" id="invTable">
+                <thead class="table-light">
+                    <tr>
+                        <th>Sucursal</th>
+                        <th>Producto</th>
+                        <th>SKU</th>
+                        <th>Stock</th>
+                        <th>Punto Reorden</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function loadInventory() {
+        // En una app real, filtraríamos por sucursal aquí
+        const res = await apiFetch('/api/inventory/');
+        if (res.ok) {
+            const data = await res.json();
+            const tbody = document.querySelector('#invTable tbody');
+            tbody.innerHTML = '';
+            data.forEach(i => {
+                // Alerta visual de stock bajo
+                const statusClass = i.stock <= i.reorder_point ? 'text-danger fw-bold' : '';
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${i.branch_name}</td>
+                        <td>${i.product_name}</td>
+                        <td>${i.sku}</td>
+                        <td class="${statusClass}">${i.stock}</td>
+                        <td>${i.reorder_point}</td>
+                    </tr>
+                `;
+            });
+        }
+    }
+    loadInventory();
+</script>
+{% endblock %}

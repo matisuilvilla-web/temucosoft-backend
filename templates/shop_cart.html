@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Tu Carrito de Compras</h2>
+<div class="row">
+    <div class="col-md-8">
+        <ul class="list-group mb-3" id="cartList">
+            <li class="list-group-item">Cargando...</li>
+        </ul>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h4>Total: <span id="totalPrice">$0</span></h4>
+                <button class="btn btn-success w-100 mt-3" onclick="checkout()">Pagar (Simular)</button>
+                <small class="text-muted d-block mt-2">La orden se creará en estado PENDING.</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function loadCart() {
+        let cartIds = JSON.parse(localStorage.getItem('shop_cart') || '[]');
+        if(cartIds.length === 0) {
+            document.getElementById('cartList').innerHTML = '<li class="list-group-item">Carrito vacío</li>';
+            return;
+        }
+
+        // Obtener detalles de productos (Ineficiente: N peticiones, idealmente endpoint /products/?ids=...)
+        let html = '';
+        let total = 0;
+        
+        // Hacemos un fetch de todos los productos y filtramos en JS (solo para prototipo)
+        let headers = {};
+        if(localStorage.getItem('access_token')) headers['Authorization'] = `Bearer ${localStorage.getItem('access_token')}`;
+        
+        const res = await fetch('/api/products/', { headers });
+        const allProducts = await res.json();
+
+        cartIds.forEach(id => {
+            const p = allProducts.find(x => x.id === id);
+            if(p) {
+                html += `
+                    <li class="list-group-item d-flex justify-content-between lh-sm">
+                        <div>
+                            <h6 class="my-0">${p.name}</h6>
+                            <small class="text-muted">${p.sku}</small>
+                        </div>
+                        <span class="text-muted">$${p.price}</span>
+                    </li>
+                `;
+                total += parseFloat(p.price);
+            }
+        });
+
+        document.getElementById('cartList').innerHTML = html;
+        document.getElementById('totalPrice').innerText = '$' + total;
+    }
+
+    function checkout() {
+        // El PDF pide convertir carrito en Order. 
+        // Aquí deberías hacer POST a un endpoint /api/orders/ (no creado aun)
+        // O POST a /api/sales/ si lo tratas como venta directa.
+        alert("Checkout simulado. En producción esto crea una Order y redirige a pago.");
+        localStorage.removeItem('shop_cart');
+        window.location.href = '/shop/';
+    }
+
+    loadCart();
+</script>
+{% endblock %}

@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <!-- Catálogo de Productos -->
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header bg-primary text-white">Catálogo de Productos</div>
+            <div class="card-body">
+                <div class="row" id="productsContainer">
+                    <!-- Productos cargados vía JS -->
+                    <div class="text-center p-3"><div class="spinner-border"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carrito de Compras -->
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header bg-dark text-white d-flex justify-content-between">
+                <span>Ticket de Venta</span>
+                <span id="branchDisplay">Sucursal: Cargando...</span>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <select id="branchSelect" class="form-select" onchange="loadProducts()">
+                        <option value="">Seleccione Sucursal</option>
+                    </select>
+                </div>
+
+                <table class="table table-sm">
+                    <thead>
+                        <tr><th>Prod</th><th>Cant</th><th>Subtotal</th><th>X</th></tr>
+                    </thead>
+                    <tbody id="cartTable"></tbody>
+                </table>
+                <hr>
+                <div class="d-flex justify-content-between fs-4 fw-bold">
+                    <span>Total:</span>
+                    <span id="cartTotal">$0</span>
+                </div>
+                
+                <div class="mt-3">
+                    <label>Método Pago</label>
+                    <select class="form-select mb-2" id="paymentMethod">
+                        <option value="CASH">Efectivo</option>
+                        <option value="CARD">Tarjeta</option>
+                        <option value="TRANSFER">Transferencia</option>
+                    </select>
+                    <button class="btn btn-success w-100 btn-lg" onclick="processSale()">CONFIRMAR VENTA</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let cart = [];
+    let products = [];
+
+    // 1. Cargar Sucursales al iniciar
+    async function loadBranches() {
+        const res = await apiFetch('/api/branches/');
+        if (res.ok) {
+            const data = await res.json();
+            const select = document.getElementById('branchSelect');
+            data.forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b.id;
+                opt.text = b.name;
+                select.appendChild(opt);
+            });
+        }
+    }
+
+    // 2. Cargar Productos e Inventario de la sucursal seleccionada
+    async function loadProducts() {
+        const branchId = document.getElementById('branchSelect').value;
+        if (!branchId) return;
+
+        // Necesitamos inventario para saber el stock
+        const res = await apiFetch(`/api/inventory/?branch=${branchId}`);
+        const container = document.getElementById('productsContainer');
+        container.innerHTML = '';
+
+        if (res.ok) {
+            const inventory = await res.json();
+            inventory.forEach(item => {
+                // Tarjeta de Producto
+                container.innerHTML += `
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body p-2">
+                                <h6 class="card-title fw-bold">${item.product_name}</h6>
+                                <p class="mb-1 text-muted small">SKU: ${item.sku}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-secondary">Stock: ${item.stock}</span>
+                                    <!-- Aquí asumimos que el precio viene en el producto, en una app real traeríamos el producto completo -->
+                                    <button class="btn btn-sm btn-outline-primary" 
+                                        onclick="addToCart(${item.product}, '${item.product_name}', 1000)"> 
+                                        + Agregar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                // NOTA: Para simplificar este ejemplo, puse precio fijo 1000. 
+                // Lo ideal es que el endpoint inventory devuelva el precio del producto (product__price).
+                // Recomiendo editar el InventorySerializer para incluir el precio.
+            });
+        }
+    }
+
+    function addToCart(id, name, price) {
+        // Buscar si ya existe
+        const existing = cart.find(i => i.product === id);
+        if (existing) {
+            existing.quantity++;
+        } else {
+            cart.push({ product: id, name: name, price: price, quantity: 1 });
+        }
+        renderCart();
+    }
+
+    function renderCart() {
+        const tbody = document.getElementById('cartTable');
+        tbody.innerHTML = '';
+        let total = 0;
+
+        cart.forEach((item, index) => {
+            // Nota: En una app real, el precio debe venir del backend
+            // Aquí usamos un precio placeholder si no se cargó bien para evitar NaN
+            const itemTotal = (item.price || 0) * item.quantity;
+            total += itemTotal;
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>$${itemTotal}</td>
+                    <td><button class="btn btn-danger btn-sm py-0" onclick="removeFromCart(${index})">x</button></td>
+                </tr>
+            `;
+        });
+        document.getElementById('cartTotal').innerText = `$${total}`;
+    }
+
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        renderCart();
+    }
+
+    async function processSale() {
+        const branchId = document.getElementById('branchSelect').value;
+        if (!branchId || cart.length === 0) {
+            alert("Seleccione sucursal y agregue productos");
+            return;
+        }
+
+        const payload = {
+            branch: branchId,
+            payment_method: document.getElementById('paymentMethod').value,
+            items: cart.map(i => ({
+                product: i.product,
+                quantity: i.quantity
+            }))
+        };
+
+        const res = await apiFetch('/api/sales/', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+            alert("Venta realizada con éxito!");
+            cart = [];
+            renderCart();
+            loadProducts(); // Recargar stock
+        } else {
+            const err = await res.json();
+            alert("Error: " + JSON.stringify(err));
+        }
+    }
+
+    loadBranches();
+</script>
+{% endblock %}

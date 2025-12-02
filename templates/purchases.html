@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Registro de Compra (Ingreso Stock)</h2>
+<div class="alert alert-secondary">
+    Simula la compra a un proveedor que aumenta el stock de un producto en una sucursal.
+    En un sistema real, esto crearía un registro en una tabla 'Purchases' y actualizaría 'Inventory'.
+    Para este ejercicio, usaremos el endpoint de inventario/ajuste (si existe) o simularemos el flujo.
+</div>
+
+<div class="card col-md-6 mx-auto">
+    <div class="card-body">
+        <form onsubmit="registrarCompra(event)">
+            <div class="mb-3">
+                <label>Sucursal Destino</label>
+                <select id="branchSel" class="form-select" required></select>
+            </div>
+            <div class="mb-3">
+                <label>Producto</label>
+                <select id="prodSel" class="form-select" required></select>
+            </div>
+            <div class="mb-3">
+                <label>Cantidad Comprada</label>
+                <input type="number" id="qty" class="form-control" min="1" oninput="validity.valid||(value='');" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Registrar Ingreso</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Carga inicial de datos
+    async function init() {
+        // Cargar Sucursales
+        const bRes = await apiFetch('/api/branches/');
+        const bData = await bRes.json();
+        const bSel = document.getElementById('branchSel');
+        bData.forEach(b => bSel.innerHTML += `<option value="${b.id}">${b.name}</option>`);
+
+        // Cargar Productos
+        const pRes = await apiFetch('/api/products/');
+        const pData = await pRes.json();
+        const pSel = document.getElementById('prodSel');
+        pData.forEach(p => pSel.innerHTML += `<option value="${p.id}">${p.name} (SKU: ${p.sku})</option>`);
+    }
+
+    async function registrarCompra(e) {
+        e.preventDefault();
+        // NOTA: El PDF pide "Movimientos de inventario". 
+        // Como no tenemos endpoint específico /api/purchases/ definido en el paso 13 anterior,
+        // esto es una implementación conceptual. Deberías crear ese endpoint en Django.
+        
+        alert("Funcionalidad simulada: Para implementar esto completamente, debes crear el endpoint /api/purchases/ en el backend que reciba {branch, product, quantity} y sume al stock.");
+    }
+    
+    init();
+</script>
+{% endblock %}

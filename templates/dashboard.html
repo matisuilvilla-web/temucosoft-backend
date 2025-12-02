@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col">
+        <h2 class="text-primary fw-bold">Panel de Control</h2>
+        <p class="text-muted">Seleccione un módulo para comenzar.</p>
+    </div>
+    <div class="col-auto">
+        <span class="badge bg-secondary p-2 fs-6" id="roleBadge">Cargando Rol...</span>
+    </div>
+</div>
+
+<div class="row g-4">
+    
+    <!-- 1. MÓDULO VENTAS (VENDEDOR, GERENTE, ADMIN_CLIENTE, SUPER_ADMIN) -->
+    <div class="col-md-4 role-pos hidden">
+        <div class="card h-100 border-0 shadow-sm hover-shadow">
+            <div class="card-body text-center p-4">
+                <div class="display-4 text-primary mb-3">🛒</div>
+                <h4 class="card-title fw-bold">Punto de Venta (POS)</h4>
+                <p class="card-text text-muted">Realizar ventas, control de caja y emisión de tickets.</p>
+                <a href="/pos/" class="btn btn-primary w-100 stretched-link">Ir a Caja</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. MÓDULO PRODUCTOS & INVENTARIO (GERENTE, ADMIN_CLIENTE, SUPER_ADMIN) -->
+    <div class="col-md-4 role-manager hidden">
+        <div class="card h-100 border-0 shadow-sm hover-shadow">
+            <div class="card-body text-center p-4">
+                <div class="display-4 text-success mb-3">📦</div>
+                <h4 class="card-title fw-bold">Inventario</h4>
+                <p class="card-text text-muted">Gestión de productos, precios, stock y movimientos.</p>
+                <a href="/inventory/" class="btn btn-outline-success w-100 stretched-link">Gestionar Stock</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. MÓDULO PROVEEDORES (GERENTE, ADMIN_CLIENTE, SUPER_ADMIN) -->
+    <div class="col-md-4 role-manager hidden">
+        <div class="card h-100 border-0 shadow-sm hover-shadow">
+            <div class="card-body text-center p-4">
+                <div class="display-4 text-warning mb-3">🚚</div>
+                <h4 class="card-title fw-bold">Proveedores</h4>
+                <p class="card-text text-muted">Base de datos de proveedores y órdenes de compra.</p>
+                <div class="d-grid gap-2">
+                    <a href="/suppliers/" class="btn btn-outline-warning text-dark position-relative z-index-2">Ver Proveedores</a>
+                    <a href="/purchases/" class="btn btn-outline-secondary position-relative z-index-2">Ingresar Compra</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. MÓDULO REPORTES (GERENTE, ADMIN_CLIENTE, SUPER_ADMIN) -->
+    <div class="col-md-4 role-manager hidden">
+        <div class="card h-100 border-0 shadow-sm hover-shadow">
+            <div class="card-body text-center p-4">
+                <div class="display-4 text-info mb-3">📈</div>
+                <h4 class="card-title fw-bold">Reportes</h4>
+                <p class="card-text text-muted">Análisis de ventas, stock valorizado y rendimiento.</p>
+                <a href="/reports/sales/" class="btn btn-outline-info text-dark w-100 stretched-link">Ver Estadísticas</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. GESTIÓN DE USUARIOS (ADMIN_CLIENTE, SUPER_ADMIN) -->
+    <div class="col-md-4 role-admin hidden">
+        <div class="card h-100 border-0 shadow-sm hover-shadow bg-light">
+            <div class="card-body text-center p-4">
+                <div class="display-4 text-dark mb-3">👥</div>
+                <h4 class="card-title fw-bold">Usuarios y Personal</h4>
+                <p class="card-text text-muted">Crear cuentas para empleados y asignar roles.</p>
+                <a href="/manage/users/" class="btn btn-dark w-100 stretched-link">Administrar Equipo</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. GESTIÓN GLOBAL (SUPER_ADMIN) -->
+    <div class="col-md-4 role-super hidden">
+        <div class="card h-100 border-danger shadow-sm border-2">
+            <div class="card-body text-center p-4">
+                <div class="display-4 text-danger mb-3">🏢</div>
+                <h4 class="card-title fw-bold text-danger">Tenants & Empresas</h4>
+                <p class="card-text text-muted">Configuración global de clientes SaaS y Planes.</p>
+                <a href="/manage/companies/" class="btn btn-danger w-100 stretched-link">Panel Super Admin</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. E-COMMERCE (ACCESO RÁPIDO) -->
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm hover-shadow">
+            <div class="card-body text-center p-4">
+                <div class="display-4 text-secondary mb-3">🛍️</div>
+                <h4 class="card-title fw-bold">Vista Cliente (Shop)</h4>
+                <p class="card-text text-muted">Visualizar cómo ven la tienda sus clientes.</p>
+                <a href="/shop/" class="btn btn-outline-secondary w-100 stretched-link">Ir a la Tienda</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Lógica visual simple: Mostrar insignia de rol
+    const r = localStorage.getItem('user_role') || 'Invitado';
+    document.getElementById('roleBadge').innerText = r.replace('_', ' ');
+
+    // La lógica de ocultar/mostrar (hidden) ya está en base.html y corre automáticamente.
+    // Solo necesitamos asegurarnos de definir las clases correctas en el HTML arriba:
+    // .role-pos -> Vendedor+
+    // .role-manager -> Gerente+
+    // .role-admin -> Admin Cliente+
+    // .role-super -> Super Admin
+    
+    // Extender lógica de base.html para Admin Cliente y Super Admin si no estaba
+    if (['ADMIN_CLIENTE', 'SUPER_ADMIN'].includes(r)) {
+        document.querySelectorAll('.role-admin').forEach(el => el.classList.remove('hidden'));
+    }
+    if (r === 'SUPER_ADMIN') {
+        document.querySelectorAll('.role-super').forEach(el => el.classList.remove('hidden'));
+    }
+</script>
+
+<style>
+    .hover-shadow:hover { transform: translateY(-5px); transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; }
+</style>
+{% endblock %}

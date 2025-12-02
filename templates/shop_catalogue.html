@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="text-center mb-5">
+    <h1>Nuestra Tienda</h1>
+    <p class="lead">Compra online con la mejor calidad.</p>
+    <a href="/shop/cart/" class="btn btn-outline-dark">🛒 Ver Carrito (<span id="cartCount">0</span>)</a>
+</div>
+
+<div class="row" id="shopContainer">
+    <div class="text-center"><div class="spinner-border"></div></div>
+</div>
+
+<script>
+    // En el shop público, el token podría no existir. Manejamos eso.
+    // Usamos fetch normal si no hay token, o apiFetch si hay usuario logueado.
+    async function loadShop() {
+        // endpoint products debe ser público (AllowAny en backend) o requerir token. 
+        // Asumiremos que es público para E-commerce o que usaremos un usuario 'anonimo' si es estricto.
+        // Si tu backend tiene IsAuthenticated, esto fallará para públicos. 
+        // Revisa views.py -> ProductViewSet permission_classes.
+        
+        let headers = {};
+        if(token) headers['Authorization'] = `Bearer ${token}`;
+        
+        const res = await fetch('/api/products/', { headers });
+        if(res.ok) {
+            const data = await res.json();
+            const container = document.getElementById('shopContainer');
+            container.innerHTML = '';
+            data.forEach(p => {
+                container.innerHTML += `
+                    <div class="col-md-3 mb-4">
+                        <div class="card h-100">
+                            <!-- Placeholder de imagen -->
+                            <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height:200px;">
+                                IMG
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">${p.name}</h5>
+                                <p class="card-text text-muted">${p.description || 'Sin descripción'}</p>
+                                <h4 class="text-primary">$${p.price}</h4>
+                                <button class="btn btn-dark w-100 mt-2" onclick="shopAdd(${p.id})">Agregar</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    }
+
+    function shopAdd(id) {
+        // Lógica simple de carrito en LocalStorage para usuarios anónimos
+        let cart = JSON.parse(localStorage.getItem('shop_cart') || '[]');
+        cart.push(id);
+        localStorage.setItem('shop_cart', JSON.stringify(cart));
+        updateCartCount();
+        alert("Agregado al carrito");
+    }
+
+    function updateCartCount() {
+        let cart = JSON.parse(localStorage.getItem('shop_cart') || '[]');
+        document.getElementById('cartCount').innerText = cart.length;
+    }
+
+    loadShop();
+    updateCartCount();
+</script>
+{% endblock %}

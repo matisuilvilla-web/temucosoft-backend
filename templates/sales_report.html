@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Reporte de Ventas</h2>
+<div class="card mb-4">
+    <div class="card-body">
+        <form class="row g-3 align-items-end" onsubmit="getReport(event)">
+            <div class="col-md-3">
+                <label>Sucursal</label>
+                <select id="repBranch" class="form-select"></select>
+            </div>
+            <div class="col-md-3">
+                <label>Desde</label>
+                <input type="date" id="dateFrom" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label>Hasta</label>
+                <input type="date" id="dateTo" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">Generar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card text-center" id="resultCard" style="display:none;">
+    <div class="card-body">
+        <h3>Total Vendido</h3>
+        <h1 class="display-4 text-success" id="totalAmount">$0</h1>
+        <p>Total Transacciones: <span id="totalCount">0</span></p>
+    </div>
+</div>
+
+<script>
+    async function loadFilters() {
+        const res = await apiFetch('/api/branches/');
+        const data = await res.json();
+        const sel = document.getElementById('repBranch');
+        sel.innerHTML = '<option value="">Todas</option>';
+        data.forEach(b => sel.innerHTML += `<option value="${b.id}">${b.name}</option>`);
+    }
+
+    async function getReport(e) {
+        e.preventDefault();
+        const branch = document.getElementById('repBranch').value;
+        const from = document.getElementById('dateFrom').value;
+        const to = document.getElementById('dateTo').value;
+
+        // REESTRUCTURADO: Eliminada validación de fechas en JS.
+        // Si las fechas son incoherentes, el Backend retornará un error o una lista vacía.
+        
+        let query = `?date_from=${from}&date_to=${to}`;
+        if(branch) query += `&branch=${branch}`;
+
+        const res = await apiFetch(`/api/reports/sales/${query}`);
+        if(res.ok) {
+            const data = await res.json();
+            document.getElementById('resultCard').style.display = 'block';
+            document.getElementById('totalAmount').innerText = '$' + (data.total_sales || 0);
+            document.getElementById('totalCount').innerText = data.count_sales;
+        } else {
+            const err = await res.json();
+            alert("Error al generar reporte: " + JSON.stringify(err));
+        }
+    }
+    loadFilters();
+</script>
+{% endblock %}
