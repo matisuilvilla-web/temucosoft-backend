@@ -1,19 +1,11 @@
 from django.contrib import admin
-from .models import Product, Branch, Inventory, Supplier
+from .models import Sale, SaleDetail
 
-@admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'sku', 'price', 'company', 'category')
-    list_filter = ('company', 'category')
+class SaleDetailInline(admin.TabularInline):
+    model = SaleDetail
+    extra = 0
 
-@admin.register(Branch)
-class BranchAdmin(admin.ModelAdmin):
-    list_display = ('name', 'company', 'phone')
-
-@admin.register(Inventory)
-class InventoryAdmin(admin.ModelAdmin):
-    list_display = ('product', 'branch', 'stock')
-
-@admin.register(Supplier)
-class SupplierAdmin(admin.ModelAdmin):
-    list_display = ('name', 'rut', 'company')
+@admin.register(Sale)
+class SaleAdmin(admin.ModelAdmin):
+    list_display = ('id', 'created_at', 'total', 'payment_method', 'branch', 'user')
+    inlines = [SaleDetailInline]
