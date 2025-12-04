@@ -1,8 +1,8 @@
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
-from apps.users.models import User  # Importa el modelo User
-from apps.products.models import Branch, Product  # Importa los modelos Branch y Product
+from apps.users.models import User  
+from apps.products.models import Branch, Product  
 
 # Validador personalizado para asegurar que la fecha no sea futura
 def validar_fecha_no_futura(value):
