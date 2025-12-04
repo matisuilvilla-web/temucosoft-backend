@@ -15,7 +15,6 @@
                     <div class="mb-2">
                         <label>RUT (Ej: 76111222-3)</label>
                         <input type="text" id="supRut" class="form-control" placeholder="12345678-9" oninput="this.value = this.value.replace(/[^0-9kK-]/g, '')" required>
-                        <!-- Feedback ahora viene del backend -->
                     </div>
                     <div class="mb-2">
                         <label>Email Contacto</label>
@@ -48,9 +47,9 @@
     async function loadSuppliers() {
         const res = await apiFetch('/api/suppliers/');
         if (res.ok) {
-            const responseData = await res.json();
-            // FIX PAGINACIÓN
-            const data = responseData.results || responseData;
+            const response = await res.json();
+            
+            const data = response.results || response;
 
             const tbody = document.querySelector('#supTable tbody');
             tbody.innerHTML = '';
@@ -63,7 +62,6 @@
     async function createSupplier(e) {
         e.preventDefault();
         
-        // REESTRUCTURADO: Ya no validamos RUT aquí. Se envía crudo al backend.
         const payload = {
             name: document.getElementById('supName').value,
             rut: document.getElementById('supRut').value,
@@ -81,9 +79,7 @@
             loadSuppliers();
             alert("Proveedor creado exitosamente.");
         } else {
-            // Manejo de error del Serializer (Backend)
             const errorData = await res.json();
-            // Mostramos el mensaje exacto que envió el backend (ej: "RUT inválido")
             alert("Error del servidor:\n" + JSON.stringify(errorData, null, 2));
         }
     }

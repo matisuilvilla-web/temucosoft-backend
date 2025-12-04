@@ -23,7 +23,6 @@
                     <select id="uRole" class="form-select">
                         <option value="VENDEDOR">Vendedor</option>
                         <option value="GERENTE">Gerente</option>
-                        <!-- Admin Cliente solo puede crear vendedores o gerentes, no otros admins usualmente, pero lo dejamos abierto -->
                     </select>
                 </div>
                 <div class="mb-3">
@@ -49,10 +48,10 @@
     async function loadUsers() {
         const res = await apiFetch('/api/users/');
         if (res.ok) {
-            const responseData = await res.json();
-            // FIX PAGINACIÓN: Si viene paginado, usamos .results, si no, usamos la data directa
-            const data = responseData.results || responseData;
-            
+            const response = await res.json();
+            // CORRECCIÓN AQUÍ
+            const data = response.results || response;
+
             const tbody = document.querySelector('#usersTable tbody');
             tbody.innerHTML = '';
             data.forEach(u => {
@@ -69,7 +68,6 @@
             password: document.getElementById('uPass').value,
             role: document.getElementById('uRole').value,
             rut: document.getElementById('uRut').value,
-            // company se asigna en backend automaticamente
         };
 
         const res = await apiFetch('/api/users/', {
