@@ -1,7 +1,3 @@
-# ==============================================================================
-# 3. APP: USERS (Permisos Personalizados)
-# Archivo destino: apps/users/permissions.py
-# ==============================================================================
 from rest_framework import permissions
 
 class IsSuperAdmin(permissions.BasePermission):

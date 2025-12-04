@@ -3,7 +3,6 @@ from .models import Product, Inventory, Branch, Supplier
 from apps.users.models import Company
 from utils.validators import validar_rut
 
-# Requisito PDF: CRUD de Branches (Sucursales)
 class BranchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Branch

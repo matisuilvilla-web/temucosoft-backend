@@ -1,7 +1,3 @@
-# ==============================================================================
-# 10. APP: SALES (Serializers - LÓGICA COMPLEJA AQUÍ)
-# Archivo destino: apps/sales/serializers.py
-# ==============================================================================
 from rest_framework import serializers
 from django.db import transaction
 from utils.validators import validar_cantidad_minima

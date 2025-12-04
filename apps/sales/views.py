@@ -1,7 +1,3 @@
-# ==============================================================================
-# 11. APP: SALES (Views)
-# Archivo destino: apps/sales/views.py
-# ==============================================================================
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend

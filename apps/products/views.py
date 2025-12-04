@@ -1,7 +1,3 @@
-# ==============================================================================
-# 6.5 APP: PRODUCTS (Views ACTUALIZADO)
-# Archivo destino: apps/products/views.py
-# ==============================================================================
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
@@ -16,8 +12,16 @@ class ProductViewSet(viewsets.ModelViewSet):
     filterset_fields = ['category', 'sku']
 
     def get_queryset(self):
-        # Requisito: Multi-tenancy (Solo data de mi empresa)
-        return Product.objects.filter(company=self.request.user.company)
+        user = self.request.user
+        # LÓGICA DE ROLES CORREGIDA:
+        # 1. Super Admin: Acceso total a la base de datos
+        if user.role == 'SUPER_ADMIN':
+            return Product.objects.all()
+        # 2. Usuarios de Empresa: Acceso acotado a su tenant
+        if user.company:
+            return Product.objects.filter(company=user.company)
+        # 3. Usuario huérfano (seguridad): Lista vacía
+        return Product.objects.none()
 
 class InventoryViewSet(viewsets.ModelViewSet):
     serializer_class = InventorySerializer
@@ -26,20 +30,33 @@ class InventoryViewSet(viewsets.ModelViewSet):
     filterset_fields = ['branch', 'product']
 
     def get_queryset(self):
-        return Inventory.objects.filter(branch__company=self.request.user.company)
-
-# Requisito PDF: Gestión de Proveedores
+        user = self.request.user
+        if user.role == 'SUPER_ADMIN':
+            return Inventory.objects.all()
+        if user.company:
+            return Inventory.objects.filter(branch__company=user.company)
+        return Inventory.objects.none()
+    
 class SupplierViewSet(viewsets.ModelViewSet):
     serializer_class = SupplierSerializer
     permission_classes = [IsAuthenticated, IsGerenteOrHigher]
 
     def get_queryset(self):
-        return Supplier.objects.filter(company=self.request.user.company)
+        user = self.request.user
+        if user.role == 'SUPER_ADMIN':
+            return Supplier.objects.all()
+        if user.company:
+            return Supplier.objects.filter(company=user.company)
+        return Supplier.objects.none()
 
-# Requisito PDF: Gestión de Sucursales (Solo Admin Cliente)
 class BranchViewSet(viewsets.ModelViewSet):
     serializer_class = BranchSerializer
     permission_classes = [IsAuthenticated, IsAdminCliente]
 
     def get_queryset(self):
-        return Branch.objects.filter(company=self.request.user.company)
+        user = self.request.user
+        if user.role == 'SUPER_ADMIN':
+            return Branch.objects.all()
+        if user.company:
+            return Branch.objects.filter(company=user.company)
+        return Branch.objects.none()

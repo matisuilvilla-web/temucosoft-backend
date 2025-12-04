@@ -1,7 +1,3 @@
-# ==============================================================================
-# 4. APP: PRODUCTS (Modelos)
-# Archivo destino: apps/products/models.py
-# ==============================================================================
 from django.db import models
 from apps.users.models import Company
 from utils.validators import validar_rut, validar_positivo

@@ -1,12 +1,4 @@
-# ==============================================================================
-# 8. APP: USERS (Vistas de Auth y Gestión)
-# Archivo destino: apps/users/views.py
-# ==============================================================================
-from rest_framework import viewsets, generics, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework_simplejwt.views import TokenObtainPairView
+ven
 from .models import User, Company, Subscription
 from .serializers import UserSerializer, CompanySerializer, MyTokenObtainPairSerializer
 from .permissions import IsSuperAdmin, IsAdminCliente
