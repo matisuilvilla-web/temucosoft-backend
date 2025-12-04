@@ -11,6 +11,40 @@
         .hidden { display: none !important; }
         .navbar-brand { font-weight: bold; color: #0d6efd !important; }
     </style>
+    
+    <!-- SCRIPT GLOBAL CRÍTICO -->
+    <script>
+        // Definimos las variables y funciones globales AQUÍ para que existan siempre
+        const token = localStorage.getItem('access_token');
+        const userRole = localStorage.getItem('user_role');
+        const username = localStorage.getItem('username');
+
+        // Función Helper Global
+        async function apiFetch(url, options = {}) {
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+                ...options.headers
+            };
+            try {
+                const response = await fetch(url, { ...options, headers });
+                if (response.status === 401) {
+                    alert("Sesión expirada. Ingrese nuevamente.");
+                    localStorage.clear();
+                    window.location.href = '/';
+                }
+                return response;
+            } catch (error) {
+                console.error("Error de red:", error);
+                throw error;
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/';
+        }
+    </script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
@@ -21,16 +55,11 @@
             </button>
             <div class="collapse navbar-collapse" id="navMain">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <!-- Dashboard -->
                     <li class="nav-item"><a class="nav-link" href="/dashboard/">Inicio</a></li>
-                    
-                    <!-- E-commerce (Accesible a todos/Público) -->
                     <li class="nav-item"><a class="nav-link text-warning" href="/shop/">Ir a Tienda</a></li>
-
-                    <!-- Roles: VENDEDOR, GERENTE, ADMIN_CLIENTE -->
+                    
+                    <!-- Menús por Rol -->
                     <li class="nav-item role-pos hidden"><a class="nav-link" href="/pos/">POS (Caja)</a></li>
-
-                    <!-- Roles: GERENTE, ADMIN_CLIENTE -->
                     <li class="nav-item dropdown role-manager hidden">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Gestión</a>
                         <ul class="dropdown-menu">
@@ -41,6 +70,10 @@
                             <li><a class="dropdown-item" href="/reports/sales/">Reporte Ventas</a></li>
                         </ul>
                     </li>
+                    <!-- Menú Admin -->
+                    <li class="nav-item role-admin hidden"><a class="nav-link" href="/manage/users/">Usuarios</a></li>
+                    <!-- Menú Super Admin -->
+                    <li class="nav-item role-super hidden"><a class="nav-link text-danger" href="/manage/companies/">Super Admin</a></li>
                 </ul>
                 <div class="d-flex text-white align-items-center">
                     <span class="me-3" id="userDisplay"></span>
@@ -59,13 +92,10 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Lógica de UI (Se ejecuta al final) -->
     <script>
-        // --- AUTH GLOBAL ---
-        const token = localStorage.getItem('access_token');
-        const userRole = localStorage.getItem('user_role');
-        const username = localStorage.getItem('username');
-
-        // Redirección si no hay token (excepto login y shop público)
+        // Redirección si no hay token
         const publicPaths = ['/', '/shop/', '/shop/cart/'];
         if (!token && !publicPaths.includes(window.location.pathname)) {
             window.location.href = '/';
@@ -77,41 +107,24 @@
              document.getElementById('userDisplay').innerHTML = '<a href="/" class="text-white text-decoration-none">Iniciar Sesión</a>';
         }
 
-        // --- GESTIÓN DE ROLES EN EL MENÚ ---
+        // Gestión de Roles Visual
         if (userRole) {
-            // Vendedor ve POS
             if (['VENDEDOR', 'GERENTE', 'ADMIN_CLIENTE', 'SUPER_ADMIN'].includes(userRole)) {
                 document.querySelectorAll('.role-pos').forEach(el => el.classList.remove('hidden'));
             }
-            // Gerente/Admin ve Gestión
             if (['GERENTE', 'ADMIN_CLIENTE', 'SUPER_ADMIN'].includes(userRole)) {
                 document.querySelectorAll('.role-manager').forEach(el => el.classList.remove('hidden'));
             }
-        }
-
-        function logout() {
-            localStorage.clear();
-            window.location.href = '/';
-        }
-
-        // --- HELPER FETCH API ---
-        async function apiFetch(url, options = {}) {
-            const headers = {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-                ...options.headers
-            };
-            const response = await fetch(url, { ...options, headers });
-            
-            // Si el token expiró, cerrar sesión
-            if (response.status === 401) {
-                alert("Sesión expirada. Ingrese nuevamente.");
-                logout();
+            if (['ADMIN_CLIENTE', 'SUPER_ADMIN'].includes(userRole)) {
+                document.querySelectorAll('.role-admin').forEach(el => el.classList.remove('hidden'));
             }
-            return response;
+            if (userRole === 'SUPER_ADMIN') {
+                document.querySelectorAll('.role-super').forEach(el => el.classList.remove('hidden'));
+            }
         }
-
     </script>
+    
+    <!-- Bloque para scripts específicos de cada página -->
     {% block scripts %}{% endblock %}
 </body>
 </html>
