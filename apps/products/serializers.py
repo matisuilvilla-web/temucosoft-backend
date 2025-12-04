@@ -1,7 +1,7 @@
-from rest_framework import serializers  # Importa los serializadores de Django Rest Framework
-from .models import Product, Inventory, Branch, Supplier  # Importa los modelos de Product, Inventory, Branch y Supplier
-from apps.users.models import Company  # Importa el modelo Company desde la aplicación 'users'
-from utils.validators import validar_rut  # Importa el validador personalizado para validar RUT
+from rest_framework import serializers  
+from .models import Product, Inventory, Branch, Supplier  
+from apps.users.models import Company  
+from utils.validators import validar_rut  
 
 # Serializador para el modelo 'Branch' (Sucursal)
 class BranchSerializer(serializers.ModelSerializer):
