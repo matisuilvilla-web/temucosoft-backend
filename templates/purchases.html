@@ -29,21 +29,25 @@
     async function init() {
         // 1. Cargar Sucursales
         const bRes = await apiFetch('/api/branches/');
+        if (!bRes.ok) {
         const bResponse = await bRes.json();
         // FIX PAGINACIÓN
         const bData = bResponse.results || bResponse;
         
         const bSel = document.getElementById('branchSel');
         bData.forEach(b => bSel.innerHTML += `<option value="${b.id}">${b.name}</option>`);
+        }
 
         // 2. Cargar Productos
         const pRes = await apiFetch('/api/products/');
+        if (!pRes.ok) {
         const pResponse = await pRes.json();
         // FIX PAGINACIÓN
         const pData = pResponse.results || pResponse;
         
         const pSel = document.getElementById('prodSel');
         pData.forEach(p => pSel.innerHTML += `<option value="${p.id}">${p.name} (SKU: ${p.sku})</option>`);
+        }
     }
     
     init();

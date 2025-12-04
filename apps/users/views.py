@@ -1,4 +1,3 @@
-ven
 from .models import User, Company, Subscription
 from .serializers import UserSerializer, CompanySerializer, MyTokenObtainPairSerializer
 from .permissions import IsSuperAdmin, IsAdminCliente
