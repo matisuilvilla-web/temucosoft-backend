@@ -1,7 +1,3 @@
-# ==============================================================================
-# 13. URLS (Ruteo Final y Validado)
-# Archivo destino: temucosoft_backend/urls.py
-# ==============================================================================
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
