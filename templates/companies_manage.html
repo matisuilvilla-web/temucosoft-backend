@@ -59,7 +59,10 @@
     async function loadCompanies() {
         const res = await apiFetch('/api/companies/');
         if (res.ok) {
-            const data = await res.json();
+            const response = await res.json();
+            // AGREGAR ESTA LÍNEA PARA PAGINACIÓN
+            const data = response.results || response;
+
             const tbody = document.querySelector('#compTable tbody');
             tbody.innerHTML = '';
             data.forEach(c => {

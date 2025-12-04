@@ -27,26 +27,23 @@
 <script>
     // Carga inicial de datos
     async function init() {
-        // Cargar Sucursales
+        // 1. Cargar Sucursales
         const bRes = await apiFetch('/api/branches/');
-        const bData = await bRes.json();
+        const bResponse = await bRes.json();
+        // FIX PAGINACIÓN
+        const bData = bResponse.results || bResponse;
+        
         const bSel = document.getElementById('branchSel');
         bData.forEach(b => bSel.innerHTML += `<option value="${b.id}">${b.name}</option>`);
 
-        // Cargar Productos
+        // 2. Cargar Productos
         const pRes = await apiFetch('/api/products/');
-        const pData = await pRes.json();
+        const pResponse = await pRes.json();
+        // FIX PAGINACIÓN
+        const pData = pResponse.results || pResponse;
+        
         const pSel = document.getElementById('prodSel');
         pData.forEach(p => pSel.innerHTML += `<option value="${p.id}">${p.name} (SKU: ${p.sku})</option>`);
-    }
-
-    async function registrarCompra(e) {
-        e.preventDefault();
-        // NOTA: El PDF pide "Movimientos de inventario". 
-        // Como no tenemos endpoint específico /api/purchases/ definido en el paso 13 anterior,
-        // esto es una implementación conceptual. Deberías crear ese endpoint en Django.
-        
-        alert("Funcionalidad simulada: Para implementar esto completamente, debes crear el endpoint /api/purchases/ en el backend que reciba {branch, product, quantity} y sume al stock.");
     }
     
     init();
