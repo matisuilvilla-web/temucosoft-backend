@@ -1,7 +1,6 @@
-from django.db import models  # Importa la clase base para definir modelos de base de datos en Django
-from apps.users.models import Company  # Importa el modelo Company desde la aplicación 'users' para establecer relaciones
-from utils.validators import validar_rut, validar_positivo  # Importa validadores personalizados para validar RUT y valores positivos
-
+from django.db import models  
+from apps.users.models import Company  
+from utils.validators import validar_rut, validar_positivo  
 # Modelo que representa un proveedor (Supplier)
 class Supplier(models.Model):
     # Relación de clave foránea con el modelo 'Company'. 
