@@ -2,14 +2,9 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
-
-# Imports de Users
 from apps.users.views import UserViewSet, CompanyViewSet, MyTokenObtainPairView, RegisterView
-# Imports de Products
 from apps.products.views import ProductViewSet, InventoryViewSet, SupplierViewSet, BranchViewSet
-# Imports de Sales
 from apps.sales.views import SaleViewSet
-# Imports de Reports
 from apps.reports.views import StockReportView, SalesReportView
 
 # Router Principal
