@@ -66,7 +66,10 @@
     async function loadBranches() {
         const res = await apiFetch('/api/branches/');
         if (res.ok) {
-            const data = await res.json();
+            const responseData = await res.json();
+            // FIX PAGINACIÓN
+            const data = responseData.results || responseData;
+
             const select = document.getElementById('branchSelect');
             data.forEach(b => {
                 const opt = document.createElement('option');
@@ -88,7 +91,10 @@
         container.innerHTML = '';
 
         if (res.ok) {
-            const inventory = await res.json();
+            const responseData = await res.json();
+            // FIX PAGINACIÓN
+            const inventory = responseData.results || responseData;
+
             inventory.forEach(item => {
                 // Tarjeta de Producto
                 container.innerHTML += `

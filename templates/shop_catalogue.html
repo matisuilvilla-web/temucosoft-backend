@@ -24,7 +24,10 @@
         
         const res = await fetch('/api/products/', { headers });
         if(res.ok) {
-            const data = await res.json();
+            const responseData = await res.json();
+            // FIX PAGINACIÓN
+            const data = responseData.results || responseData;
+
             const container = document.getElementById('shopContainer');
             container.innerHTML = '';
             data.forEach(p => {

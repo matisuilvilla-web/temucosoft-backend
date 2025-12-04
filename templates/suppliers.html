@@ -48,7 +48,10 @@
     async function loadSuppliers() {
         const res = await apiFetch('/api/suppliers/');
         if (res.ok) {
-            const data = await res.json();
+            const responseData = await res.json();
+            // FIX PAGINACIÓN
+            const data = responseData.results || responseData;
+
             const tbody = document.querySelector('#supTable tbody');
             tbody.innerHTML = '';
             data.forEach(s => {

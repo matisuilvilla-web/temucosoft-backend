@@ -29,7 +29,10 @@
         // En una app real, filtraríamos por sucursal aquí
         const res = await apiFetch('/api/inventory/');
         if (res.ok) {
-            const data = await res.json();
+            const responseData = await res.json();
+            // FIX PAGINACIÓN
+            const data = responseData.results || responseData;
+
             const tbody = document.querySelector('#invTable tbody');
             tbody.innerHTML = '';
             data.forEach(i => {

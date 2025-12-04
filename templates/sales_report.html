@@ -34,7 +34,10 @@
 <script>
     async function loadFilters() {
         const res = await apiFetch('/api/branches/');
-        const data = await res.json();
+        const responseData = await res.json();
+        // FIX PAGINACIÓN
+        const data = responseData.results || responseData;
+
         const sel = document.getElementById('repBranch');
         sel.innerHTML = '<option value="">Todas</option>';
         data.forEach(b => sel.innerHTML += `<option value="${b.id}">${b.name}</option>`);
@@ -55,6 +58,8 @@
         const res = await apiFetch(`/api/reports/sales/${query}`);
         if(res.ok) {
             const data = await res.json();
+            // Los reportes NO están paginados porque son APIViews manuales,
+            // pero es bueno tener cuidado. Aquí devuelve un dict directo {total_sales: X...}
             document.getElementById('resultCard').style.display = 'block';
             document.getElementById('totalAmount').innerText = '$' + (data.total_sales || 0);
             document.getElementById('totalCount').innerText = data.count_sales;

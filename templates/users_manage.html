@@ -49,7 +49,10 @@
     async function loadUsers() {
         const res = await apiFetch('/api/users/');
         if (res.ok) {
-            const data = await res.json();
+            const responseData = await res.json();
+            // FIX PAGINACIÓN: Si viene paginado, usamos .results, si no, usamos la data directa
+            const data = responseData.results || responseData;
+            
             const tbody = document.querySelector('#usersTable tbody');
             tbody.innerHTML = '';
             data.forEach(u => {

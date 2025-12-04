@@ -35,7 +35,9 @@
         if(localStorage.getItem('access_token')) headers['Authorization'] = `Bearer ${localStorage.getItem('access_token')}`;
         
         const res = await fetch('/api/products/', { headers });
-        const allProducts = await res.json();
+        const responseData = await res.json();
+        // FIX PAGINACIÓN: Importante aquí también
+        const allProducts = responseData.results || responseData;
 
         cartIds.forEach(id => {
             const p = allProducts.find(x => x.id === id);
