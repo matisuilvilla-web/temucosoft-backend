@@ -1,3 +1,9 @@
+from rest_framework import serializers 
+from django.db import transaction 
+from utils.validators import validar_cantidad_minima
+from .models import Sale, SaleDetail 
+from apps.products.models import Product, Inventory
+
 class SaleDetailSerializer(serializers.ModelSerializer):
     product_sku = serializers.CharField(source='product.sku', read_only=True)  # SKU del producto, solo lectura
     product_name = serializers.CharField(source='product.name', read_only=True)  # Nombre del producto, solo lectura
